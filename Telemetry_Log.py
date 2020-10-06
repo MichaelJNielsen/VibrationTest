@@ -267,9 +267,9 @@ class Toplevel1:
     def onOpen(self):
         try:
                 self.Yaw_Level.configure(value=(dict_telemetry["rc"]["yaw"])+1)
-                self.Throttle_Level.configure(value=(dict_telemetry["rc"]["throttle"])+1)
+                self.Throttle_Level.configure(value=(dict_telemetry["rc"]["throttle"] * -1)+1)
                 self.Roll_level.configure(value=(dict_telemetry["rc"]["roll"])+1)
-                self.Pitch_level.configure(value=(dict_telemetry["rc"]["pitch"])+1)
+                self.Pitch_level.configure(value=(dict_telemetry["rc"]["pitch"] * -1)+1)
                 self.Acceleration_x.configure(text=str("Acceleration X: " + str(dict_telemetry["imu"]["acceleration"]["x"])))
                 self.Acceleration_y.configure(text=str("Acceleration Y: " + str(dict_telemetry["imu"]["acceleration"]["y"])))
                 self.Acceleration_z.configure(text=str("Acceleration Z: " + str(dict_telemetry["imu"]["acceleration"]["z"])))
@@ -356,13 +356,13 @@ def imu_callback(msg):
 		dict_telemetry["imu"]["acceleration"]["z"] = linear_acceleration.z
 
 def joy_callback(msg):
-	if (msg.axes[0] >= 0):
+	if (msg.axes[0] >= -1.0):
 		dict_telemetry["rc"]["roll"]         = msg.axes[0]
-	if (msg.axes[1] >= 0):
+	if (msg.axes[1] >= -1.0):
 		dict_telemetry["rc"]["pitch"]        = msg.axes[1]
-	if (msg.axes[2] >= 0):
+	if (msg.axes[2] >= -1.0):
 		dict_telemetry["rc"]["yaw"]          = msg.axes[2]
-	if (msg.axes[3] >= 0):
+	if (msg.axes[3] >= -1.0):
 		dict_telemetry["rc"]["throttle"]     = msg.axes[3]
 	if (msg.axes[4] >= 0):
 		dict_telemetry["rc"]["mode"]         = msg.axes[4]
