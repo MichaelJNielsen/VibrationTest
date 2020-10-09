@@ -78,6 +78,12 @@ telemetry = {
 	},
     "vicon":
 	{
+	"header":
+	    {
+	    "sequence": [],
+	    "time stamp": [],
+	    "frame id":[]
+	    },
 	"translation": 
 	    {
 	    "x": [],
@@ -94,50 +100,89 @@ telemetry = {
 	},
     "internal imu": 
     	{
-        "orientation": {
+    	"header":
+    	    {
+    	    "time stamp": []
+    	    },
+        "accelerometer": 
+            {
             "x": [],
             "y": [],
-            "z": []},
-        "velocity": {
+            "z": []
+            },
+        "gyrometer": 
+            {
             "x": [],
             "y": [],
-            "z": []},
-        "acceleration": {
+            "z": []
+            },
+        "magnetometer": 
+            {
             "x": [],
             "y": [],
-            "z": []}
+            "z": []
+            }
         },
     "external imu": 
     	{
-        "orientation": {
+    	"header":
+    	    {
+    	    "time stamp": []
+    	    },
+        "accelerometer": 
+            {
             "x": [],
             "y": [],
-            "z": []},
-        "velocity": {
+            "z": []
+            },
+        "gyrometer": 
+            {
             "x": [],
             "y": [],
-            "z": []},
-        "acceleration": {
+            "z": []
+            },
+        "magnetometer": 
+            {
             "x": [],
             "y": [],
-            "z": []}
+            "z": []
+            }
         },
-    "DJI imu": 
+    "dji imu": 
     	{
-        "orientation": {
+    	"header":
+	    {
+	    "sequence": [],
+	    "time stamp": [],
+	    "frame id":[]
+	    },
+        "orientation": 
+            {
             "x": [],
             "y": [],
-            "z": []},
-        "velocity": {
+            "z": []
+            },
+        "angular velocity": 
+            {
             "x": [],
             "y": [],
-            "z": []},
-        "acceleration": {
+            "z": []
+            },
+        "linear acceleration": 
+            {
             "x": [],
             "y": [],
-            "z": []}
+            "z": []
+            }
         },
-    "rc": {
+    "rc": 
+        {
+        "header":
+            {
+            "sequence": [],
+	    "time stamp": [],
+	    "frame id":[]
+	    },
         "roll": [],
         "pitch": [],
         "yaw": [],
