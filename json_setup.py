@@ -1,4 +1,4 @@
-telemetry = {
+telemetry_old = {
     "battery": {
         "voltage": 0.0,
         "current": 0.0,
@@ -65,3 +65,89 @@ telemetry = {
 	"status": "",
 	"mode": "",
 }
+
+#---------------------------------------------------------------------------
+
+telemetry = {
+    "test id": 
+	{
+	"name": 0.0,
+	"date": 0.0,
+	"start time": 0.0,
+	"duration": 0.0
+	},
+    "vicon":
+	{
+	"translation": 
+	    {
+	    "x": [],
+	    "y": [],
+	    "z": []
+	    },
+	"rotation":
+	    {
+	    "x": [],
+	    "y": [],
+	    "z": [],
+	    "w": []
+	    }
+	},
+    "internal imu": 
+    	{
+        "orientation": {
+            "x": [],
+            "y": [],
+            "z": []},
+        "velocity": {
+            "x": [],
+            "y": [],
+            "z": []},
+        "acceleration": {
+            "x": [],
+            "y": [],
+            "z": []}
+        },
+    "external imu": 
+    	{
+        "orientation": {
+            "x": [],
+            "y": [],
+            "z": []},
+        "velocity": {
+            "x": [],
+            "y": [],
+            "z": []},
+        "acceleration": {
+            "x": [],
+            "y": [],
+            "z": []}
+        },
+    "DJI imu": 
+    	{
+        "orientation": {
+            "x": [],
+            "y": [],
+            "z": []},
+        "velocity": {
+            "x": [],
+            "y": [],
+            "z": []},
+        "acceleration": {
+            "x": [],
+            "y": [],
+            "z": []}
+        },
+    "rc": {
+        "roll": [],
+        "pitch": [],
+        "yaw": [],
+        "throttle": [],
+        "mode": 0.0,
+        "landing_gear": 0.0
+        },
+}
+
+
+
+
+
