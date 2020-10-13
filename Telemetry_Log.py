@@ -5,9 +5,6 @@
 #  in conjunction with Tcl version 8.6
 #    Aug 28, 2020 05:47:52 PM CEST  platform: Windows NT
 
-import sys
-import csv
-
 try:
     import Tkinter as tk
 except ImportError:
@@ -20,19 +17,20 @@ except ImportError:
     import tkinter.ttk as ttk
     py3 = True
 
-import os.path, json, time, rospy, serial
+import sys, os.path, json, time, rospy, serial, datetime, setup, csv
 from json_setup import telemetry
 from tkinter.filedialog import asksaveasfile
-from datetime import datetime
 from sensor_msgs.msg import Imu
-from sensor_msgs.msg    import Joy
+from sensor_msgs.msg import Joy
+from geometry_msgs.msg import TransformStamped
 
 prog_call = sys.argv[0]
 prog_location = os.path.split(prog_call)[0]
 dict_telemetry = telemetry
 toLog = False
 #ser = serial.Serial('/dev/ttyS2',115200)
-ser = serial.Serial('/dev/ttyACM0',115200)
+ser1 = serial.Serial('/dev/ttyACM0',115200)
+ser2 = serial.Serial('/dev/ttyACM0',115200)
 
 class Toplevel1:
     def __init__(self, top=None):
@@ -272,19 +270,19 @@ class Toplevel1:
                 self.Throttle_Level.configure(value=(dict_telemetry["rc"]["throttle"] * -1)+1)
                 self.Roll_level.configure(value=(dict_telemetry["rc"]["roll"])+1)
                 self.Pitch_level.configure(value=(dict_telemetry["rc"]["pitch"] * -1)+1)
-                self.Acceleration_x.configure(text=str("Acceleration X: " + str(dict_telemetry["imu"]["acceleration"]["x"])))
-                self.Acceleration_y.configure(text=str("Acceleration Y: " + str(dict_telemetry["imu"]["acceleration"]["y"])))
-                self.Acceleration_z.configure(text=str("Acceleration Z: " + str(dict_telemetry["imu"]["acceleration"]["z"])))
+                self.Acceleration_x.configure(text=str("Acceleration X: " + str(dict_telemetry["dji imu"]["linear acceleration"]["x"])))
+                self.Acceleration_y.configure(text=str("Acceleration Y: " + str(dict_telemetry["dji imu"]["linear acceleration"]["y"])))
+                self.Acceleration_z.configure(text=str("Acceleration Z: " + str(dict_telemetry["dji imu"]["linear acceleration"]["z"])))
                 self.Throttle.configure(text=str("Throttle : " + str(dict_telemetry["rc"]["throttle"])))
                 self.Yaw.configure(text=str("Yaw: " + str(dict_telemetry["rc"]["yaw"])))
                 self.Pitch.configure(text=str("Pitch: " + str(dict_telemetry["rc"]["pitch"])))
                 self.Roll.configure(text=str("Roll: " + str(dict_telemetry["rc"]["roll"])))
-                safeeye_data = read_from_safeeye()
-                #print(safeeye_data)
-                self.Bin_Values.configure(text=str("X: " + safeeye_data[1] + "\nY: " + safeeye_data[2] + "\nZ: " + safeeye_data[3]))
+                int_imu_data = read_from_serial(ser1)
+                ext_imu_data = read_from_serial(ser1)
+                self.Bin_Values.configure(text=str("X: " + int_imu_data[1] + "\nY: " + int_imu_data[2] + "\nZ: " + int_imu_data[3]))
                 if toLog == True:
-                        self.log(dict_telemetry, safeeye_data)
-                        print("finished logging")
+                        self.log(int_imu_data, ext_imu_data)
+                        #self.log(int_imu_data, ext_imu_data)
         except Exception as e:
                 print("Main Loop Error")
 
@@ -303,6 +301,9 @@ class Toplevel1:
                 self.Text_Label.configure(background="#ffff00")
                 self.Text_Label.configure(text='''Logging''')
                 self.Log_Button.configure(text='''Stop Logging''')
+                #Define header for csv file
+                logsetup()
+                                
             elif toLog == True:
                 toLog = False
                 self.Text_Label.configure(background="#00ff00")
@@ -312,21 +313,49 @@ class Toplevel1:
             print("No valid savefile")
             self.Text_Label.configure(background="#ffff00")
             self.Text_Label.configure(text='''Invalid savefile''')
+            
+    def log(self, data1, data2):
+        print("entered function")
+        global start_flag
+                
+        logger_timestamp = time.time()-dict_telemetry["test id"]["start time"]
+                
+        if start_flag == 0:
+                field_header = [dict_telemetry["test id"]["name"], dict_telemetry["test id"]["date"], dict_telemetry["test id"]["start time"], logger_timestamp]
+                start_flag = 1
+        else:
+                field_header = ['','','',logger_timestamp]
+    
+        field_vicon = [dict_telemetry["vicon"]["header"]["sequence"],float(str(dict_telemetry["vicon"]["header"]["seconds"]) + "." + str(dict_telemetry["vicon"]["header"]["nanoseconds"])),dict_telemetry["vicon"]["header"]["frame id"], dict_telemetry["vicon"]["child frame id"], dict_telemetry["vicon"]["translation"]["x"], dict_telemetry["vicon"]["translation"]["y"], dict_telemetry["vicon"]["translation"]["z"], dict_telemetry["vicon"]["rotation"]["x"], dict_telemetry["vicon"]["rotation"]["y"], dict_telemetry["vicon"]["rotation"]["z"], dict_telemetry["vicon"]["rotation"]["w"]]
+        
+        field_int_imu = data1
+        field_ext_imu = data2
 
-    def log(self, arr, data):
-        date_time_obj = datetime.now()
-        date = date_time_obj.hour.__str__() + ":" + date_time_obj.minute.__str__() + ":" + date_time_obj.second.__str__() + "." + date_time_obj.microsecond.__str__()
-        fields = [date, arr["rc"]["yaw"], arr["rc"]["throttle"], arr["rc"]["roll"], arr["rc"]["pitch"], arr["imu"]["acceleration"]["x"], arr["imu"]["acceleration"]["y"],
-                  arr["imu"]["acceleration"]["z"], data[1], data[2], data[3]]
+        field_dji_imu = [dict_telemetry["dji imu"]["header"]["sequence"], float(str(dict_telemetry["dji imu"]["header"]["seconds"]) + "." + str(dict_telemetry["dji imu"]["header"]["nanoseconds"])), dict_telemetry["dji imu"]["header"]["frame id"], dict_telemetry["dji imu"]["orientation"]["x"], dict_telemetry["dji imu"]["orientation"]["y"], dict_telemetry["dji imu"]["orientation"]["z"], dict_telemetry["dji imu"]["angular velocity"]["x"], dict_telemetry["dji imu"]["angular velocity"]["y"], dict_telemetry["dji imu"]["angular velocity"]["z"], dict_telemetry["dji imu"]["linear acceleration"]["x"], dict_telemetry["dji imu"]["linear acceleration"]["y"], dict_telemetry["dji imu"]["linear acceleration"]["z"]]
+        
+        field_rc = [dict_telemetry["rc"]["header"]["sequence"], float(str(dict_telemetry["rc"]["header"]["seconds"]) + "." + str(dict_telemetry["rc"]["header"]["nanoseconds"])), dict_telemetry["rc"]["header"]["frame id"], dict_telemetry["rc"]["roll"], dict_telemetry["rc"]["pitch"], dict_telemetry["rc"]["yaw"], dict_telemetry["rc"]["throttle"], dict_telemetry["rc"]["mode"], dict_telemetry["rc"]["landing_gear"]]
+        
+        fields = field_header + field_vicon + field_int_imu + field_ext_imu + field_dji_imu + field_rc
+        
         print(str(fields))
         with open(file_name, 'a', newline='') as f:
-            print("opened file")
-            writer = csv.writer(f)
-            print("defined writer")
-            writer.writerow(fields)
-            print("wrote")
+                writer = csv.writer(f) 
+                writer.writerow(fields)
 
-def read_from_safeeye():
+def logsetup():
+        global start_flag
+        start_flag = 0
+
+        dict_telemetry["test id"]["name"] = file_name
+        date = datetime.date.today()
+        dict_telemetry["test id"]["date"] = int(date.strftime("%Y%m%d"))
+        dict_telemetry["test id"]["start time"] = time.time()
+     
+        with open(file_name, 'a', newline='') as f:
+                writer = csv.writer(f)
+                writer.writerow(setup.setup)
+
+def read_from_serial(ser):
 	try:
 		temp = ser.readline()
 		line = temp.decode()
@@ -335,54 +364,82 @@ def read_from_safeeye():
 	except Exception as e:
 		print("Serial Read Error")
 
-def imu_callback(msg):
-	orientation = msg.orientation
-	if (orientation.x >= 0):
-		dict_telemetry["imu"]["orientation"]["x"] = orientation.x
-	if (orientation.y >= 0):
-		dict_telemetry["imu"]["orientation"]["y"] = orientation.y
-	if (orientation.z >= 0):
-		dict_telemetry["imu"]["orientation"]["z"] = orientation.z
+def dji_imu_callback(msg):
+        dict_telemetry["dji imu"]["header"]["sequence"] = msg.header.seq
+        dict_telemetry["dji imu"]["header"]["seconds"] = msg.header.stamp.secs
+        dict_telemetry["dji imu"]["header"]["nanoseconds"] = msg.header.stamp.nsecs
+        dict_telemetry["dji imu"]["header"]["frame id"] = msg.header.frame_id
 
-	angular_velocity = msg.angular_velocity
-	if (angular_velocity.x >= 0):
-		dict_telemetry["imu"]["velocity"]["x"] = angular_velocity.x
-	if (angular_velocity.y >= 0):
-		dict_telemetry["imu"]["velocity"]["y"] = angular_velocity.y
-	if (angular_velocity.z >= 0):
-		dict_telemetry["imu"]["velocity"]["z"] = angular_velocity.z
+        orientation = msg.orientation
+        if (orientation.x >= 0):
+                dict_telemetry["dji imu"]["orientation"]["x"] = orientation.x
+        if (orientation.y >= 0):
+                dict_telemetry["dji imu"]["orientation"]["y"] = orientation.y
+        if (orientation.z >= 0):
+                dict_telemetry["dji imu"]["orientation"]["z"] = orientation.z
 
-	linear_acceleration = msg.linear_acceleration
-	if (linear_acceleration.x >= 0):
-		dict_telemetry["imu"]["acceleration"]["x"] = linear_acceleration.x
-	if (linear_acceleration.y >= 0):
-		dict_telemetry["imu"]["acceleration"]["y"] = linear_acceleration.y
-	if (linear_acceleration.z >= 0):
-		dict_telemetry["imu"]["acceleration"]["z"] = linear_acceleration.z
+        angular_velocity = msg.angular_velocity
+        if (angular_velocity.x >= 0):
+                dict_telemetry["dji imu"]["angular velocity"]["x"] = angular_velocity.x
+        if (angular_velocity.y >= 0):
+                dict_telemetry["dji imu"]["angular velocity"]["y"] = angular_velocity.y
+        if (angular_velocity.z >= 0):
+                dict_telemetry["dji imu"]["angular velocity"]["z"] = angular_velocity.z
 
-def joy_callback(msg):
-	if (msg.axes[0] >= -1.0):
-		dict_telemetry["rc"]["roll"]         = msg.axes[0]
-	if (msg.axes[1] >= -1.0):
-		dict_telemetry["rc"]["pitch"]        = msg.axes[1]
-	if (msg.axes[2] >= -1.0):
-		dict_telemetry["rc"]["yaw"]          = msg.axes[2]
-	if (msg.axes[3] >= -1.0):
-		dict_telemetry["rc"]["throttle"]     = msg.axes[3]
-	if (msg.axes[4] >= 0):
-		dict_telemetry["rc"]["mode"]         = msg.axes[4]
-	if (msg.axes[5] >= 0):
-		dict_telemetry["rc"]["landing_gear"] = msg.axes[5]
+        linear_acceleration = msg.linear_acceleration
+        if (linear_acceleration.x >= 0):
+                dict_telemetry["dji imu"]["linear acceleration"]["x"] = linear_acceleration.x
+        if (linear_acceleration.y >= 0):
+                dict_telemetry["dji imu"]["linear acceleration"]["y"] = linear_acceleration.y
+        if (linear_acceleration.z >= 0):
+                dict_telemetry["dji imu"]["linear acceleration"]["z"] = linear_acceleration.z
+
+def dji_joy_callback(msg):
+
+        dict_telemetry["rc"]["header"]["sequence"] = msg.header.seq
+        dict_telemetry["rc"]["header"]["seconds"] = msg.header.stamp.secs
+        dict_telemetry["rc"]["header"]["nanoseconds"] = msg.header.stamp.nsecs
+        dict_telemetry["rc"]["header"]["frame id"] = msg.header.frame_id
+        
+        if (msg.axes[0] >= -1.0):
+                dict_telemetry["rc"]["roll"]         = msg.axes[0]
+        if (msg.axes[1] >= -1.0):
+                dict_telemetry["rc"]["pitch"]        = msg.axes[1]
+        if (msg.axes[2] >= -1.0):
+                dict_telemetry["rc"]["yaw"]          = msg.axes[2]
+        if (msg.axes[3] >= -1.0):
+                dict_telemetry["rc"]["throttle"]     = msg.axes[3]
+        if (msg.axes[4] >= 0):
+                dict_telemetry["rc"]["mode"]         = msg.axes[4]
+        if (msg.axes[5] >= 0):
+                dict_telemetry["rc"]["landing_gear"] = msg.axes[5]
+		
+def vicon_callback(msg):
+        dict_telemetry["vicon"]["header"]["sequence"] = msg.header.seq
+        dict_telemetry["vicon"]["header"]["seconds"] = msg.header.stamp.secs
+        dict_telemetry["vicon"]["header"]["nanoseconds"] = msg.header.stamp.nsecs
+        dict_telemetry["vicon"]["header"]["frame id"] = msg.header.frame_id
+        
+        dict_telemetry["vicon"]["child frame id"] = msg.child_frame_id
+                
+        dict_telemetry["vicon"]["translation"]["x"] = msg.transform.translation.x
+        dict_telemetry["vicon"]["translation"]["y"] = msg.transform.translation.y
+        dict_telemetry["vicon"]["translation"]["z"] = msg.transform.translation.z
+        dict_telemetry["vicon"]["rotation"]["x"] = msg.transform.rotation.x
+        dict_telemetry["vicon"]["rotation"]["y"] = msg.transform.rotation.y
+        dict_telemetry["vicon"]["rotation"]["z"] = msg.transform.rotation.z
+        dict_telemetry["vicon"]["rotation"]["w"] = msg.transform.rotation.w        
 
 if __name__ == '__main__':
-	root = tk.Tk()
-	app = Toplevel1(top=root)
+        root = tk.Tk()
+        app = Toplevel1(top=root)
 
-	rospy.init_node('Telemetry_logger', anonymous=True)
-	rospy.Subscriber("/dji_sdk/imu", Imu, imu_callback)
-	rospy.Subscriber("/dji_sdk/rc", Joy, joy_callback)
+        rospy.init_node('Telemetry_logger', anonymous=True)
+        rospy.Subscriber("/dji_sdk/imu", Imu, dji_imu_callback)
+        rospy.Subscriber("/dji_sdk/rc", Joy, dji_joy_callback)
+        rospy.Subscriber("/position_data", TransformStamped, vicon_callback)
 
-	while True:
-		app.refresh()
-		app.onOpen()
+        while True:
+                app.refresh()
+                app.onOpen()
 
