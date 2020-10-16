@@ -17,7 +17,7 @@ except ImportError:
     import tkinter.ttk as ttk
     py3 = True
 
-import sys, os.path, json, time, rospy, serial, datetime, setup, csv
+import sys, os.path, time, rospy, serial, datetime, setup, csv
 from json_setup import telemetry
 from tkinter.filedialog import asksaveasfile
 from sensor_msgs.msg import Imu
@@ -279,17 +279,17 @@ class Toplevel1:
                 self.Roll.configure(text=str("Roll: " + str(dict_telemetry["rc"]["roll"])))
                 int_imu_data = read_from_serial(ser1)
                 ext_imu_data = read_from_serial(ser1)
-                self.Bin_Values.configure(text=str("X: " + int_imu_data[1] + "\nY: " + int_imu_data[2] + "\nZ: " + int_imu_data[3]))
+                self.Bin_Values.configure(text=str("X: " + str(int_imu_data[1]) + "\nY: " + str(int_imu_data[2]) + "\nZ: " + str(int_imu_data[3])))
                 if toLog == True:
                         self.log(int_imu_data, ext_imu_data)
-                        #self.log(int_imu_data, ext_imu_data)
+                        myveryspecialvariable = 0
         except Exception as e:
                 print("Main Loop Error")
 
     def refresh(self):
         root.update_idletasks()
         root.update()
-        time.sleep(0.01)
+        #time.sleep(0.01)
 
     def logData(self):
         global file_name, toLog
@@ -315,60 +315,76 @@ class Toplevel1:
             self.Text_Label.configure(text='''Invalid savefile''')
             
     def log(self, data1, data2):
-        print("entered function")
-        global start_flag
+        try:
+                global start_flag, start_time
+                if start_flag == 0:
+                        start_time = time.time()
+                        field_header = [dict_telemetry["test id"]["name"], dict_telemetry["test id"]["date"]]
+                        start_flag = 1
+                        
+                else:
+                        field_header = ['','']
                 
-        logger_timestamp = time.time()-dict_telemetry["test id"]["start time"]
+                current_clocktime = datetime.datetime.now().time()
+                dict_telemetry["test id"]["time"] = float(current_clocktime.strftime("%H%M%S.%f"))
+                dict_telemetry["test id"]["time_since_start"] = time.time()-start_time
                 
-        if start_flag == 0:
-                field_header = [dict_telemetry["test id"]["name"], dict_telemetry["test id"]["date"], dict_telemetry["test id"]["start time"], logger_timestamp]
-                start_flag = 1
-        else:
-                field_header = ['','','',logger_timestamp]
-    
-        field_vicon = [dict_telemetry["vicon"]["header"]["sequence"],float(str(dict_telemetry["vicon"]["header"]["seconds"]) + "." + str(dict_telemetry["vicon"]["header"]["nanoseconds"])),dict_telemetry["vicon"]["header"]["frame id"], dict_telemetry["vicon"]["child frame id"], dict_telemetry["vicon"]["translation"]["x"], dict_telemetry["vicon"]["translation"]["y"], dict_telemetry["vicon"]["translation"]["z"], dict_telemetry["vicon"]["rotation"]["x"], dict_telemetry["vicon"]["rotation"]["y"], dict_telemetry["vicon"]["rotation"]["z"], dict_telemetry["vicon"]["rotation"]["w"]]
-        
-        field_int_imu = data1
-        field_ext_imu = data2
-
-        field_dji_imu = [dict_telemetry["dji imu"]["header"]["sequence"], float(str(dict_telemetry["dji imu"]["header"]["seconds"]) + "." + str(dict_telemetry["dji imu"]["header"]["nanoseconds"])), dict_telemetry["dji imu"]["header"]["frame id"], dict_telemetry["dji imu"]["orientation"]["x"], dict_telemetry["dji imu"]["orientation"]["y"], dict_telemetry["dji imu"]["orientation"]["z"], dict_telemetry["dji imu"]["angular velocity"]["x"], dict_telemetry["dji imu"]["angular velocity"]["y"], dict_telemetry["dji imu"]["angular velocity"]["z"], dict_telemetry["dji imu"]["linear acceleration"]["x"], dict_telemetry["dji imu"]["linear acceleration"]["y"], dict_telemetry["dji imu"]["linear acceleration"]["z"]]
-        
-        field_rc = [dict_telemetry["rc"]["header"]["sequence"], float(str(dict_telemetry["rc"]["header"]["seconds"]) + "." + str(dict_telemetry["rc"]["header"]["nanoseconds"])), dict_telemetry["rc"]["header"]["frame id"], dict_telemetry["rc"]["roll"], dict_telemetry["rc"]["pitch"], dict_telemetry["rc"]["yaw"], dict_telemetry["rc"]["throttle"], dict_telemetry["rc"]["mode"], dict_telemetry["rc"]["landing_gear"]]
-        
-        fields = field_header + field_vicon + field_int_imu + field_ext_imu + field_dji_imu + field_rc
-        
-        print(str(fields))
-        with open(file_name, 'a', newline='') as f:
-                writer = csv.writer(f) 
-                writer.writerow(fields)
+                field_time = [dict_telemetry["test id"]["time"], dict_telemetry["test id"]["time_since_start"]]
+                field_vicon = [dict_telemetry["vicon"]["header"]["sequence"],float(str(dict_telemetry["vicon"]["header"]["seconds"]) + "." + str(dict_telemetry["vicon"]["header"]["nanoseconds"])),dict_telemetry["vicon"]["header"]["frame id"], dict_telemetry["vicon"]["child frame id"], dict_telemetry["vicon"]["translation"]["x"], dict_telemetry["vicon"]["translation"]["y"], dict_telemetry["vicon"]["translation"]["z"], dict_telemetry["vicon"]["rotation"]["x"], dict_telemetry["vicon"]["rotation"]["y"], dict_telemetry["vicon"]["rotation"]["z"], dict_telemetry["vicon"]["rotation"]["w"]]
+                field_int_imu = data1
+                field_ext_imu = data2
+                field_dji_imu = [dict_telemetry["dji imu"]["header"]["sequence"], float(str(dict_telemetry["dji imu"]["header"]["seconds"]) + "." + str(dict_telemetry["dji imu"]["header"]["nanoseconds"])), dict_telemetry["dji imu"]["header"]["frame id"], dict_telemetry["dji imu"]["orientation"]["x"], dict_telemetry["dji imu"]["orientation"]["y"], dict_telemetry["dji imu"]["orientation"]["z"], dict_telemetry["dji imu"]["angular velocity"]["x"], dict_telemetry["dji imu"]["angular velocity"]["y"], dict_telemetry["dji imu"]["angular velocity"]["z"], dict_telemetry["dji imu"]["linear acceleration"]["x"], dict_telemetry["dji imu"]["linear acceleration"]["y"], dict_telemetry["dji imu"]["linear acceleration"]["z"]]
+                field_rc = [dict_telemetry["rc"]["header"]["sequence"], float(str(dict_telemetry["rc"]["header"]["seconds"]) + "." + str(dict_telemetry["rc"]["header"]["nanoseconds"])), dict_telemetry["rc"]["header"]["frame id"], dict_telemetry["rc"]["roll"], dict_telemetry["rc"]["pitch"], dict_telemetry["rc"]["yaw"], dict_telemetry["rc"]["throttle"], dict_telemetry["rc"]["mode"], dict_telemetry["rc"]["landing_gear"]]
+                fields = field_header + field_time + field_vicon + field_int_imu + field_ext_imu + field_dji_imu + field_rc
+                print(str(fields))
+                with open(file_name, 'a', newline='') as f:
+                        writer = csv.writer(f) 
+                        writer.writerow(fields)
+        except Exception as e:
+                print("Logging error")
 
 def logsetup():
-        global start_flag
-        start_flag = 0
+        try:
+                global start_flag
+                start_flag = 0
+                
+                date = datetime.date.today()
 
-        dict_telemetry["test id"]["name"] = file_name
-        date = datetime.date.today()
-        dict_telemetry["test id"]["date"] = int(date.strftime("%Y%m%d"))
-        dict_telemetry["test id"]["start time"] = time.time()
+                dict_telemetry["test id"]["name"] = file_name
+                dict_telemetry["test id"]["date"] = int(date.strftime("%Y%m%d"))
      
-        with open(file_name, 'a', newline='') as f:
-                writer = csv.writer(f)
-                writer.writerow(setup.setup)
+                with open(file_name, 'a', newline='') as f:
+                        writer = csv.writer(f)
+                        writer.writerow(setup.setup)
+        except Exception as e:
+                print("Error during setup of log")
 
 def read_from_serial(ser):
-	try:
-		temp = ser.readline()
-		line = temp.decode()
-		x = line.split()
-		return x
-	except Exception as e:
-		print("Serial Read Error")
+        try:
+                serial_data = []
+                temp = ser.readline()
+                line = temp.decode()
+                splitline = line.split(',')
+                for x in splitline:
+                        serial_data.append(float(x))
+                        
+                return serial_data
+        except Exception as e:
+                print("Serial Read Error")
+	
+def header_check(secs, nsecs):
+        if type(secs) == float or type(nsecs) == float:
+                raise
+        else:
+                return()
+                
 
 def dji_imu_callback(msg):
         dict_telemetry["dji imu"]["header"]["sequence"] = msg.header.seq
         dict_telemetry["dji imu"]["header"]["seconds"] = msg.header.stamp.secs
         dict_telemetry["dji imu"]["header"]["nanoseconds"] = msg.header.stamp.nsecs
         dict_telemetry["dji imu"]["header"]["frame id"] = msg.header.frame_id
+        header_check(dict_telemetry["dji imu"]["header"]["seconds"], dict_telemetry["dji imu"]["header"]["nanoseconds"])
 
         orientation = msg.orientation
         if (orientation.x >= 0):
@@ -395,11 +411,11 @@ def dji_imu_callback(msg):
                 dict_telemetry["dji imu"]["linear acceleration"]["z"] = linear_acceleration.z
 
 def dji_joy_callback(msg):
-
         dict_telemetry["rc"]["header"]["sequence"] = msg.header.seq
         dict_telemetry["rc"]["header"]["seconds"] = msg.header.stamp.secs
         dict_telemetry["rc"]["header"]["nanoseconds"] = msg.header.stamp.nsecs
         dict_telemetry["rc"]["header"]["frame id"] = msg.header.frame_id
+        header_check(dict_telemetry["rc"]["header"]["seconds"],dict_telemetry["rc"]["header"]["nanoseconds"])
         
         if (msg.axes[0] >= -1.0):
                 dict_telemetry["rc"]["roll"]         = msg.axes[0]
@@ -419,7 +435,7 @@ def vicon_callback(msg):
         dict_telemetry["vicon"]["header"]["seconds"] = msg.header.stamp.secs
         dict_telemetry["vicon"]["header"]["nanoseconds"] = msg.header.stamp.nsecs
         dict_telemetry["vicon"]["header"]["frame id"] = msg.header.frame_id
-        
+
         dict_telemetry["vicon"]["child frame id"] = msg.child_frame_id
                 
         dict_telemetry["vicon"]["translation"]["x"] = msg.transform.translation.x
@@ -428,7 +444,8 @@ def vicon_callback(msg):
         dict_telemetry["vicon"]["rotation"]["x"] = msg.transform.rotation.x
         dict_telemetry["vicon"]["rotation"]["y"] = msg.transform.rotation.y
         dict_telemetry["vicon"]["rotation"]["z"] = msg.transform.rotation.z
-        dict_telemetry["vicon"]["rotation"]["w"] = msg.transform.rotation.w        
+        dict_telemetry["vicon"]["rotation"]["w"] = msg.transform.rotation.w
+        
 
 if __name__ == '__main__':
         root = tk.Tk()
@@ -438,8 +455,10 @@ if __name__ == '__main__':
         rospy.Subscriber("/dji_sdk/imu", Imu, dji_imu_callback)
         rospy.Subscriber("/dji_sdk/rc", Joy, dji_joy_callback)
         rospy.Subscriber("/position_data", TransformStamped, vicon_callback)
+        rate = rospy.Rate(50) # hz
 
         while True:
                 app.refresh()
                 app.onOpen()
+                rate.sleep()
 

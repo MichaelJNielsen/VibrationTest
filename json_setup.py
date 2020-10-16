@@ -73,16 +73,16 @@ telemetry = {
 	{
 	"name": 0.0,
 	"date": 0.0,
-	"start time": 0.0,
-	"current time": 0.0
+	"time": 0.0,
+	"time_since_start": 0.0
 	},
     "vicon":
 	{
 	"header":
 	    {
 	    "sequence": 0.0,
-	    "seconds": 0.0,
-	    "nanoseconds": 0.0,
+	    "seconds": 0,
+	    "nanoseconds": 0,
 	    "frame id":0.0
 	    },
 	"child frame id": 0.0,
@@ -155,8 +155,8 @@ telemetry = {
     	"header":
 	    {
 	    "sequence": 0.0,
-	    "seconds": 0.0,
-	    "nanoseconds": 0.0,
+	    "seconds": 0,
+	    "nanoseconds": 0,
 	    "frame id": 0.0
 	    },
         "orientation": 
@@ -183,8 +183,8 @@ telemetry = {
         "header":
             {
             "sequence": 0.0,
-	    "seconds": 0.0,
-	    "nanoseconds": 0.0,
+	    "seconds": 0,
+	    "nanoseconds": 0,
 	    "frame id": 0.0
 	    },
         "roll": 0.0,
