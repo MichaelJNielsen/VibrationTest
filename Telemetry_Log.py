@@ -278,7 +278,7 @@ class Toplevel1:
                 self.Pitch.configure(text=str("Pitch: " + str(dict_telemetry["rc"]["pitch"])))
                 self.Roll.configure(text=str("Roll: " + str(dict_telemetry["rc"]["roll"])))
                 int_imu_data = read_from_serial(ser1)
-                ext_imu_data = read_from_serial(ser1)
+                ext_imu_data = read_from_serial(ser2)
                 self.Bin_Values.configure(text=str("X: " + str(int_imu_data[1]) + "\nY: " + str(int_imu_data[2]) + "\nZ: " + str(int_imu_data[3])))
                 if toLog == True:
                         self.log(int_imu_data, ext_imu_data)
