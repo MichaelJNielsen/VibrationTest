@@ -370,65 +370,42 @@ def read_from_serial(ser):
                         
                 return serial_data
         except Exception as e:
-                print("Serial Read Error")
-	
-def header_check(secs, nsecs):
-        if type(secs) == float or type(nsecs) == float:
-                raise
-        else:
-                return()
-                
+                print("Serial Read Error")                
 
 def dji_imu_callback(msg):
         dict_telemetry["dji imu"]["header"]["sequence"] = msg.header.seq
         dict_telemetry["dji imu"]["header"]["seconds"] = msg.header.stamp.secs
         dict_telemetry["dji imu"]["header"]["nanoseconds"] = msg.header.stamp.nsecs
         dict_telemetry["dji imu"]["header"]["frame id"] = msg.header.frame_id
-        header_check(dict_telemetry["dji imu"]["header"]["seconds"], dict_telemetry["dji imu"]["header"]["nanoseconds"])
 
         orientation = msg.orientation
-        if (orientation.x >= 0):
-                dict_telemetry["dji imu"]["orientation"]["x"] = orientation.x
-        if (orientation.y >= 0):
-                dict_telemetry["dji imu"]["orientation"]["y"] = orientation.y
-        if (orientation.z >= 0):
-                dict_telemetry["dji imu"]["orientation"]["z"] = orientation.z
+        dict_telemetry["dji imu"]["orientation"]["x"] = orientation.x
+        dict_telemetry["dji imu"]["orientation"]["y"] = orientation.y
+        dict_telemetry["dji imu"]["orientation"]["z"] = orientation.z
+        dict_telemetry["dji imu"]["orientation"]["w"] = orientation.w
 
         angular_velocity = msg.angular_velocity
-        if (angular_velocity.x >= 0):
-                dict_telemetry["dji imu"]["angular velocity"]["x"] = angular_velocity.x
-        if (angular_velocity.y >= 0):
-                dict_telemetry["dji imu"]["angular velocity"]["y"] = angular_velocity.y
-        if (angular_velocity.z >= 0):
-                dict_telemetry["dji imu"]["angular velocity"]["z"] = angular_velocity.z
+        dict_telemetry["dji imu"]["angular velocity"]["x"] = angular_velocity.x
+        dict_telemetry["dji imu"]["angular velocity"]["y"] = angular_velocity.y
+        dict_telemetry["dji imu"]["angular velocity"]["z"] = angular_velocity.z
 
         linear_acceleration = msg.linear_acceleration
-        if (linear_acceleration.x >= 0):
-                dict_telemetry["dji imu"]["linear acceleration"]["x"] = linear_acceleration.x
-        if (linear_acceleration.y >= 0):
-                dict_telemetry["dji imu"]["linear acceleration"]["y"] = linear_acceleration.y
-        if (linear_acceleration.z >= 0):
-                dict_telemetry["dji imu"]["linear acceleration"]["z"] = linear_acceleration.z
+        dict_telemetry["dji imu"]["linear acceleration"]["x"] = linear_acceleration.x
+        dict_telemetry["dji imu"]["linear acceleration"]["y"] = linear_acceleration.y
+        dict_telemetry["dji imu"]["linear acceleration"]["z"] = linear_acceleration.z
 
 def dji_joy_callback(msg):
         dict_telemetry["rc"]["header"]["sequence"] = msg.header.seq
         dict_telemetry["rc"]["header"]["seconds"] = msg.header.stamp.secs
         dict_telemetry["rc"]["header"]["nanoseconds"] = msg.header.stamp.nsecs
         dict_telemetry["rc"]["header"]["frame id"] = msg.header.frame_id
-        header_check(dict_telemetry["rc"]["header"]["seconds"],dict_telemetry["rc"]["header"]["nanoseconds"])
         
-        if (msg.axes[0] >= -1.0):
-                dict_telemetry["rc"]["roll"]         = msg.axes[0]
-        if (msg.axes[1] >= -1.0):
-                dict_telemetry["rc"]["pitch"]        = msg.axes[1]
-        if (msg.axes[2] >= -1.0):
-                dict_telemetry["rc"]["yaw"]          = msg.axes[2]
-        if (msg.axes[3] >= -1.0):
-                dict_telemetry["rc"]["throttle"]     = msg.axes[3]
-        if (msg.axes[4] >= 0):
-                dict_telemetry["rc"]["mode"]         = msg.axes[4]
-        if (msg.axes[5] >= 0):
-                dict_telemetry["rc"]["landing_gear"] = msg.axes[5]
+        dict_telemetry["rc"]["roll"]         = msg.axes[0]
+        dict_telemetry["rc"]["pitch"]        = msg.axes[1]
+        dict_telemetry["rc"]["yaw"]          = msg.axes[2]
+        dict_telemetry["rc"]["throttle"]     = msg.axes[3]
+        dict_telemetry["rc"]["mode"]         = msg.axes[4]
+        dict_telemetry["rc"]["landing_gear"] = msg.axes[5]
 		
 def vicon_callback(msg):
         dict_telemetry["vicon"]["header"]["sequence"] = msg.header.seq
