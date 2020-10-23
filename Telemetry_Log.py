@@ -28,8 +28,8 @@ prog_call = sys.argv[0]
 prog_location = os.path.split(prog_call)[0]
 dict_telemetry = telemetry
 toLog = False
-ser1 = serial.Serial('/dev/ttyS2',115200)
-#ser1 = serial.Serial('/dev/ttyACM0',115200)
+#ser1 = serial.Serial('/dev/ttyS2',115200)
+ser1 = serial.Serial('/dev/ttyACM0',115200)
 ser2 = serial.Serial('/dev/ttyACM0',115200)
 
 class Toplevel1:
@@ -362,11 +362,17 @@ def logsetup():
 def read_from_serial(ser):
         try:
                 serial_data = []
+                ser.reset_input_buffer()
                 temp = ser.readline()
                 line = temp.decode()
                 splitline = line.split(',')
                 for x in splitline:
                         serial_data.append(float(x))
+                
+                ##Convert from g to m/s²
+                #serial_data[1] = serial_data[1]*9.806
+                #serial_data[2] = serial_data[2]*9.806
+                #serial_data[3] = serial_data[3]*9.806
                         
                 return serial_data
         except Exception as e:
