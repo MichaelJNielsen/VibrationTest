@@ -282,7 +282,6 @@ class Toplevel1:
                 self.Bin_Values.configure(text=str("X: " + str(int_imu_data[1]) + "\nY: " + str(int_imu_data[2]) + "\nZ: " + str(int_imu_data[3])))
                 if toLog == True:
                         self.log(int_imu_data, ext_imu_data)
-                        myveryspecialvariable = 0
         except Exception as e:
                 print("Main Loop Error")
 
@@ -336,7 +335,7 @@ class Toplevel1:
                 field_dji_imu = [dict_telemetry["dji imu"]["header"]["sequence"], float(str(dict_telemetry["dji imu"]["header"]["seconds"]) + "." + str(dict_telemetry["dji imu"]["header"]["nanoseconds"])), dict_telemetry["dji imu"]["header"]["frame id"], dict_telemetry["dji imu"]["orientation"]["x"], dict_telemetry["dji imu"]["orientation"]["y"], dict_telemetry["dji imu"]["orientation"]["z"], dict_telemetry["dji imu"]["orientation"]["w"], dict_telemetry["dji imu"]["angular velocity"]["x"], dict_telemetry["dji imu"]["angular velocity"]["y"], dict_telemetry["dji imu"]["angular velocity"]["z"], dict_telemetry["dji imu"]["linear acceleration"]["x"], dict_telemetry["dji imu"]["linear acceleration"]["y"], dict_telemetry["dji imu"]["linear acceleration"]["z"]]
                 field_rc = [dict_telemetry["rc"]["header"]["sequence"], float(str(dict_telemetry["rc"]["header"]["seconds"]) + "." + str(dict_telemetry["rc"]["header"]["nanoseconds"])), dict_telemetry["rc"]["header"]["frame id"], dict_telemetry["rc"]["roll"], dict_telemetry["rc"]["pitch"], dict_telemetry["rc"]["yaw"], dict_telemetry["rc"]["throttle"], dict_telemetry["rc"]["mode"], dict_telemetry["rc"]["landing_gear"]]
                 fields = field_header + field_time + field_vicon + field_int_imu + field_ext_imu + field_dji_imu + field_rc
-                print(str(fields))
+                #print(str(fields))
                 with open(file_name, 'a', newline='') as f:
                         writer = csv.writer(f) 
                         writer.writerow(fields)
@@ -359,12 +358,20 @@ def logsetup():
         except Exception as e:
                 print("Error during setup of log")
 
+def read_latest_line(ser):
+        data = '0,0,0,0,0,0,0,0,0,0'
+        bytesToRead = ser.inWaiting()
+        myBuffer = ser.read(bytesToRead)
+        buffer_string = myBuffer.decode()
+        lines = buffer_string.split('\r\n')
+        if len(lines) > 1:
+                data = lines[-2]
+        return data 
+
 def read_from_serial(ser):
         try:
                 serial_data = []
-                ser.reset_input_buffer()
-                temp = ser.readline()
-                line = temp.decode()
+                line = read_latest_line(ser)
                 splitline = line.split(',')
                 for x in splitline:
                         serial_data.append(float(x))
@@ -373,10 +380,12 @@ def read_from_serial(ser):
                 #serial_data[1] = serial_data[1]*9.806
                 #serial_data[2] = serial_data[2]*9.806
                 #serial_data[3] = serial_data[3]*9.806
-                        
+
                 return serial_data
         except Exception as e:
-                print("Serial Read Error")                
+                print("Serial Read Error")    
+                
+           
 
 def dji_imu_callback(msg):
         dict_telemetry["dji imu"]["header"]["sequence"] = msg.header.seq
@@ -437,11 +446,52 @@ if __name__ == '__main__':
         rospy.init_node('Telemetry_logger', anonymous=True)
         rospy.Subscriber("/dji_sdk/imu", Imu, dji_imu_callback)
         rospy.Subscriber("/dji_sdk/rc", Joy, dji_joy_callback)
-        rospy.Subscriber("/position_data", TransformStamped, vicon_callback)
-        rate = rospy.Rate(50) # hz
+        rospy.Subscriber("/vicon/test_obj/test_obj", TransformStamped, vicon_callback)
+        rate = rospy.Rate(10) # hz
+        
+        max_cycle = 0
+        min_cycle = 10
+        timer_i = 0
 
         while True:
+                timer_i = timer_i+1
+                beginTime = time.time()
                 app.refresh()
                 app.onOpen()
                 rate.sleep()
+                cycle = time.time()-beginTime
+                if max_cycle < cycle:
+                        max_cycle = cycle
+                if min_cycle > cycle:
+                        min_cycle = cycle
+                print(max_cycle)
+                print(min_cycle)
+                if  timer_i % 20 == 0:
+                        max_cycle = 0
+                        min_cycle = 10
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
