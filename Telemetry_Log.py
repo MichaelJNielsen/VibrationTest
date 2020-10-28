@@ -28,9 +28,10 @@ prog_call = sys.argv[0]
 prog_location = os.path.split(prog_call)[0]
 dict_telemetry = telemetry
 toLog = False
-#ser1 = serial.Serial('/dev/ttyS2',115200)
-ser1 = serial.Serial('/dev/ttyACM0',115200)
+ser1 = serial.Serial('/dev/ttyS2',115200)
+#ser1 = serial.Serial('/dev/ttyACM0',115200)
 ser2 = serial.Serial('/dev/ttyACM0',115200)
+latest_received = '0,0,0,0,0,0,0,0,0,0'
 
 class Toplevel1:
     def __init__(self, top=None):
@@ -335,7 +336,7 @@ class Toplevel1:
                 field_dji_imu = [dict_telemetry["dji imu"]["header"]["sequence"], float(str(dict_telemetry["dji imu"]["header"]["seconds"]) + "." + str(dict_telemetry["dji imu"]["header"]["nanoseconds"])), dict_telemetry["dji imu"]["header"]["frame id"], dict_telemetry["dji imu"]["orientation"]["x"], dict_telemetry["dji imu"]["orientation"]["y"], dict_telemetry["dji imu"]["orientation"]["z"], dict_telemetry["dji imu"]["orientation"]["w"], dict_telemetry["dji imu"]["angular velocity"]["x"], dict_telemetry["dji imu"]["angular velocity"]["y"], dict_telemetry["dji imu"]["angular velocity"]["z"], dict_telemetry["dji imu"]["linear acceleration"]["x"], dict_telemetry["dji imu"]["linear acceleration"]["y"], dict_telemetry["dji imu"]["linear acceleration"]["z"]]
                 field_rc = [dict_telemetry["rc"]["header"]["sequence"], float(str(dict_telemetry["rc"]["header"]["seconds"]) + "." + str(dict_telemetry["rc"]["header"]["nanoseconds"])), dict_telemetry["rc"]["header"]["frame id"], dict_telemetry["rc"]["roll"], dict_telemetry["rc"]["pitch"], dict_telemetry["rc"]["yaw"], dict_telemetry["rc"]["throttle"], dict_telemetry["rc"]["mode"], dict_telemetry["rc"]["landing_gear"]]
                 fields = field_header + field_time + field_vicon + field_int_imu + field_ext_imu + field_dji_imu + field_rc
-                #print(str(fields))
+                print(field_ext_imu)
                 with open(file_name, 'a', newline='') as f:
                         writer = csv.writer(f) 
                         writer.writerow(fields)
@@ -359,14 +360,16 @@ def logsetup():
                 print("Error during setup of log")
 
 def read_latest_line(ser):
-        data = '0,0,0,0,0,0,0,0,0,0'
+        global latest_received
         bytesToRead = ser.inWaiting()
-        myBuffer = ser.read(bytesToRead)
-        buffer_string = myBuffer.decode()
+        buffer_bytes = ser.read(bytesToRead)
+        buffer_string = buffer_bytes.decode()
         lines = buffer_string.split('\r\n')
         if len(lines) > 1:
-                data = lines[-2]
-        return data 
+            latest_received = lines[-2]
+        else:
+            print("Not enough serial input, using last available")
+        return latest_received    
 
 def read_from_serial(ser):
         try:
@@ -383,7 +386,19 @@ def read_from_serial(ser):
 
                 return serial_data
         except Exception as e:
-                print("Serial Read Error")    
+                print("Serial Read Error")
+                
+def execution_timer():
+        cycle = time.time()-beginTime
+        if max_cycle < cycle:
+                max_cycle = cycle
+        if min_cycle > cycle:
+                min_cycle = cycle
+        print(max_cycle)
+        print(min_cycle)
+        if  timer_i % 20 == 0:
+                max_cycle = 0
+                min_cycle = 10
                 
            
 
@@ -459,16 +474,9 @@ if __name__ == '__main__':
                 app.refresh()
                 app.onOpen()
                 rate.sleep()
-                cycle = time.time()-beginTime
-                if max_cycle < cycle:
-                        max_cycle = cycle
-                if min_cycle > cycle:
-                        min_cycle = cycle
-                print(max_cycle)
-                print(min_cycle)
-                if  timer_i % 20 == 0:
-                        max_cycle = 0
-                        min_cycle = 10
+                #execution_timer()
+                
+
 
 
 
