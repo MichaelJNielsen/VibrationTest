@@ -389,6 +389,7 @@ def read_from_serial(ser):
                 print("Serial Read Error")
                 
 def execution_timer():
+        timer_i = timer_i+1
         cycle = time.time()-beginTime
         if max_cycle < cycle:
                 max_cycle = cycle
@@ -469,7 +470,6 @@ if __name__ == '__main__':
         timer_i = 0
 
         while True:
-                timer_i = timer_i+1
                 beginTime = time.time()
                 app.refresh()
                 app.onOpen()
