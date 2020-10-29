@@ -28,10 +28,11 @@ prog_call = sys.argv[0]
 prog_location = os.path.split(prog_call)[0]
 dict_telemetry = telemetry
 toLog = False
-ser1 = serial.Serial('/dev/ttyS2',115200)
+#ser1 = serial.Serial('/dev/ttyS2',115200)
 #ser1 = serial.Serial('/dev/ttyACM0',115200)
 ser2 = serial.Serial('/dev/ttyACM0',115200)
 latest_received = '0,0,0,0,0,0,0,0,0,0'
+buffer_bytes = b''
 
 class Toplevel1:
     def __init__(self, top=None):
@@ -278,7 +279,7 @@ class Toplevel1:
                 self.Yaw.configure(text=str("Yaw: " + str(dict_telemetry["rc"]["yaw"])))
                 self.Pitch.configure(text=str("Pitch: " + str(dict_telemetry["rc"]["pitch"])))
                 self.Roll.configure(text=str("Roll: " + str(dict_telemetry["rc"]["roll"])))
-                int_imu_data = read_from_serial(ser1)
+                int_imu_data = [0,1,2,3,4,5,6,7,8,9] #read_from_serial(ser1)
                 ext_imu_data = read_from_serial(ser2)
                 self.Bin_Values.configure(text=str("X: " + str(int_imu_data[1]) + "\nY: " + str(int_imu_data[2]) + "\nZ: " + str(int_imu_data[3])))
                 if toLog == True:
@@ -360,10 +361,12 @@ def logsetup():
                 print("Error during setup of log")
 
 def read_latest_line(ser):
-        global latest_received
+        global latest_received, buffer_bytes
         bytesToRead = ser.inWaiting()
-        buffer_bytes = ser.read(bytesToRead)
+        temp_bytes = ser.read(bytesToRead)
+        buffer_bytes = buffer_bytes + temp_bytes
         buffer_string = buffer_bytes.decode()
+        buffer_bytes = temp_bytes
         lines = buffer_string.split('\r\n')
         if len(lines) > 1:
             latest_received = lines[-2]
