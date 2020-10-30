@@ -66,8 +66,8 @@ def logsetup():
         except Exception as e:
                 print("Error during setup of log")
 
-def read_latest_line(ser,buffer_bytes):
-        global latest_received
+def read_latest_line(ser,buffer_bytes,data):
+        latest_received = data
         bytesToRead = ser.inWaiting()
         temp_bytes = ser.read(bytesToRead)
         buffer_bytes = buffer_bytes + temp_bytes
@@ -184,8 +184,8 @@ if __name__ == '__main__':
         while True:
                 beginTime = time.time()
                 int_imu_data = [0,1,2,3,4,5,6,7,8,9] 
-                #int_imu_data,buffer_bytes1 = read_from_serial(ser1,buffer_bytes1)
-                ext_imu_data,buffer_bytes2 = read_from_serial(ser2,buffer_bytes2)
+                #int_imu_data,buffer_bytes1 = read_from_serial(ser1,buffer_bytes1,int_imu_data)
+                ext_imu_data,buffer_bytes2 = read_from_serial(ser2,buffer_bytes2,ext_imu_data)
                 log(int_imu_data,ext_imu_data)
                 rate.sleep()
                 
