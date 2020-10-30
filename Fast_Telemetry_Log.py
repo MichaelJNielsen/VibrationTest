@@ -76,8 +76,7 @@ def read_latest_line(ser):
         if len(lines) > 1:
             latest_received = lines[-2]
         else:
-            #print("Not enough serial input, using last available")
-            a = 0
+            print("Not enough serial input, using last available")
         return latest_received    
 
 def read_from_serial(ser):
@@ -166,27 +165,13 @@ def namer():
                 else:
                         file_name = csv_name
         return(file_name)
-        
-def execution_timer():
-        timer_i = timer_i+1
-        cycle = time.time()-beginTime
-        if max_cycle < cycle:
-                max_cycle = cycle
-        if min_cycle > cycle:
-                min_cycle = cycle
-        print(max_cycle)
-        print(min_cycle)
-        if  timer_i % 20 == 0:
-                max_cycle = 0
-                min_cycle = 10
-        
 
 if __name__ == '__main__':
         rospy.init_node('Telemetry_logger', anonymous=True)
         rospy.Subscriber("/dji_sdk/imu", Imu, dji_imu_callback)
         rospy.Subscriber("/dji_sdk/rc", Joy, dji_joy_callback)
         rospy.Subscriber("/vicon/test_obj/test_obj", TransformStamped, vicon_callback)
-        rate = rospy.Rate(2000) # hz
+        rate = rospy.Rate(50) # hz
 
         file_name = namer()
         logsetup()
@@ -201,16 +186,16 @@ if __name__ == '__main__':
                 ext_imu_data = read_from_serial(ser2)
                 #print(ext_imu_data)
                 log(int_imu_data,ext_imu_data)
-                #rate.sleep()
-                #execution_timer()
+                rate.sleep()
+                
                 timer_i = timer_i+1
                 cycle = time.time()-beginTime
                 if max_cycle < cycle:
                         max_cycle = cycle
                 if min_cycle > cycle:
                         min_cycle = cycle
-                print(max_cycle)
-                print(min_cycle)
+                #print(max_cycle)
+                #print(min_cycle)
                 if  timer_i % 200 == 0:
                         max_cycle = 0
                         min_cycle = 10
