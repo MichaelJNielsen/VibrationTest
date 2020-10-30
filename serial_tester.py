@@ -20,18 +20,6 @@ def read_latest_line(ser):
             print("Not enough serial input, using last available")
         return latest_received
 
-def old_read_latest_line(ser):
-    global latest_received
-    bytesToRead = ser.inWaiting()
-    buffer_bytes = ser.read(bytesToRead)
-    buffer_string = buffer_bytes.decode()
-    lines = buffer_string.split('\r\n')
-    if len(lines) > 1:
-        latest_received = lines[-2]
-    else:
-        print("Not enough serial input, using last available")
-    return latest_received
-
 def read_from_serial(ser):
     serial_data = []
     line = read_latest_line(ser)
@@ -42,9 +30,9 @@ def read_from_serial(ser):
     return serial_data
 
 while True:
-    time.sleep(0.01)
+    time.sleep(0.02)
     data = read_from_serial(ser)
-    print(data)
+    #print(data)
     with open(file_name, 'a', newline='') as f:
         writer = csv.writer(f)
         writer.writerow(data)

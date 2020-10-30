@@ -71,13 +71,13 @@ def read_latest_line(ser):
         temp_bytes = ser.read(bytesToRead)
         buffer_bytes = buffer_bytes + temp_bytes
         buffer_string = buffer_bytes.decode()
-        buffer_bytes = temp_bytes
         lines = buffer_string.split('\r\n')
         if len(lines) > 1:
             latest_received = lines[-2]
+            buffer_bytes = temp_bytes
         else:
             print("Not enough serial input, using last available")
-        return latest_received    
+        return latest_received
 
 def read_from_serial(ser):
         try:
@@ -184,7 +184,6 @@ if __name__ == '__main__':
                 beginTime = time.time()
                 int_imu_data = [0,1,2,3,4,5,6,7,8,9] #read_from_serial(ser1)
                 ext_imu_data = read_from_serial(ser2)
-                #print(ext_imu_data)
                 log(int_imu_data,ext_imu_data)
                 rate.sleep()
                 
