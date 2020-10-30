@@ -12,7 +12,8 @@ dict_telemetry = telemetry
 #ser1 = serial.Serial('/dev/ttyACM0',115200)
 ser2 = serial.Serial('/dev/ttyACM0',115200)
 latest_received = '0,0,0,0,0,0,0,0,0,0'
-buffer_bytes = b''
+buffer_bytes1 = b''
+buffer_bytes2 = b''
 
 def keyboardInterruptHandler(signal,frame):
     print("\ninterrupted")
@@ -65,8 +66,8 @@ def logsetup():
         except Exception as e:
                 print("Error during setup of log")
 
-def read_latest_line(ser):
-        global latest_received, buffer_bytes
+def read_latest_line(ser,buffer_bytes):
+        global latest_received
         bytesToRead = ser.inWaiting()
         temp_bytes = ser.read(bytesToRead)
         buffer_bytes = buffer_bytes + temp_bytes
@@ -77,12 +78,12 @@ def read_latest_line(ser):
             buffer_bytes = temp_bytes
         else:
             print("Not enough serial input, using last available")
-        return latest_received
+        return latest_received,buffer_bytes
 
-def read_from_serial(ser):
+def read_from_serial(ser,buffer_bytes):
         try:
                 serial_data = []
-                line = read_latest_line(ser)
+                line,buffer_bytes = read_latest_line(ser,buffer_bytes)
                 splitline = line.split(',')
                 for x in splitline:
                         serial_data.append(float(x))
@@ -92,7 +93,7 @@ def read_from_serial(ser):
                 #serial_data[2] = serial_data[2]*9.806
                 #serial_data[3] = serial_data[3]*9.806
 
-                return serial_data
+                return serial_data,buffer_bytes
         except Exception as e:
                 print("Serial Read Error")
                 
@@ -182,8 +183,9 @@ if __name__ == '__main__':
 
         while True:
                 beginTime = time.time()
-                int_imu_data = [0,1,2,3,4,5,6,7,8,9] #read_from_serial(ser1)
-                ext_imu_data = read_from_serial(ser2)
+                int_imu_data = [0,1,2,3,4,5,6,7,8,9] 
+                #int_imu_data,buffer_bytes1 = read_from_serial(ser1,buffer_bytes1)
+                ext_imu_data,buffer_bytes2 = read_from_serial(ser2,buffer_bytes2)
                 log(int_imu_data,ext_imu_data)
                 rate.sleep()
                 
