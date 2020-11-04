@@ -172,26 +172,27 @@ if __name__ == '__main__':
         file_name = namer()
         logsetup()
         
-        max_cycle = 0
-        min_cycle = 10
-        timer_i = 0
+        #max_cycle = 0
+        #min_cycle = 10
+        #timer_i = 0
 
         while True:
                 beginTime = time.time()
                 log()
+		print(dict_telemetry["test id"]["time_since_start"])
                 rate.sleep()
                 
-                timer_i = timer_i+1
-                cycle = time.time()-beginTime
-                if max_cycle < cycle:
-                        max_cycle = cycle
-                if min_cycle > cycle:
-                        min_cycle = cycle
+                #timer_i = timer_i+1
+                #cycle = time.time()-beginTime
+                #if max_cycle < cycle:
+                #        max_cycle = cycle
+                #if min_cycle > cycle:
+                #        min_cycle = cycle
                 #print(max_cycle)
                 #print(min_cycle)
-                if  timer_i % 200 == 0:
-                        max_cycle = 0
-                        min_cycle = 10
+                #if  timer_i % 200 == 0:
+                #        max_cycle = 0
+                #        min_cycle = 10
                 
 
 
