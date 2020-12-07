@@ -137,7 +137,7 @@ telemetry = {
             "y": 0.0,
             "z": 0.0
             }
-        }
+        },
     "adxl375_arm":
         {
         "header":
