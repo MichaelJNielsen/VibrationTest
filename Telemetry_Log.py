@@ -14,7 +14,7 @@ def keyboardInterruptHandler(signal,frame):
     exit(0)
 
 signal.signal(signal.SIGINT,keyboardInterruptHandler)
-            
+
 def log():
         try:
                 global start_flag, start_time
@@ -149,7 +149,7 @@ def ADXL375_SafeEye_callback(msg):
         dict_telemetry["adxl375_safeeye"]["linear acceleration"]["y"] = msg.linear_acceleration.y
         dict_telemetry["adxl375_safeeye"]["linear acceleration"]["z"] = msg.linear_acceleration.z
         
-def ADXL375_SafeEye_callback(msg):
+def ADXL375_Arm_callback(msg):
         dict_telemetry["adxl375_arm"]["header"]["sequence"] = msg.header.seq
         
         dict_telemetry["adxl375_arm"]["linear acceleration"]["x"] = msg.linear_acceleration.x
@@ -196,7 +196,7 @@ if __name__ == '__main__':
         while True:
                 beginTime = time.time()
                 log()
-                print(dict_telemetry["test id"]["time_since_start"])
+                print(dict_telemetry["test id"]["time_since_start"], 'Throttle: ', dict_telemetry["rc"]["throttle"])
                 rate.sleep()
                 
                 #timer_i = timer_i+1
