@@ -37,8 +37,8 @@ def log():
                 field_dji_imu = [dict_telemetry["dji imu"]["header"]["sequence"], float(str(dict_telemetry["dji imu"]["header"]["seconds"]) + "." + str(dict_telemetry["dji imu"]["header"]["nanoseconds"])), dict_telemetry["dji imu"]["header"]["frame id"], dict_telemetry["dji imu"]["orientation"]["x"], dict_telemetry["dji imu"]["orientation"]["y"], dict_telemetry["dji imu"]["orientation"]["z"], dict_telemetry["dji imu"]["orientation"]["w"], dict_telemetry["dji imu"]["angular velocity"]["x"], dict_telemetry["dji imu"]["angular velocity"]["y"], dict_telemetry["dji imu"]["angular velocity"]["z"], dict_telemetry["dji imu"]["linear acceleration"]["x"], dict_telemetry["dji imu"]["linear acceleration"]["y"], dict_telemetry["dji imu"]["linear acceleration"]["z"]]
                 field_rc = [dict_telemetry["rc"]["header"]["sequence"], float(str(dict_telemetry["rc"]["header"]["seconds"]) + "." + str(dict_telemetry["rc"]["header"]["nanoseconds"])), dict_telemetry["rc"]["header"]["frame id"], dict_telemetry["rc"]["roll"], dict_telemetry["rc"]["pitch"], dict_telemetry["rc"]["yaw"], dict_telemetry["rc"]["throttle"], dict_telemetry["rc"]["mode"], dict_telemetry["rc"]["landing_gear"]]
                 field_adxl_safeeye = [dict_telemetry["adxl375_safeeye"]["header"]["sequence"], dict_telemetry["adxl375_safeeye"]["linear acceleration"]["x"], dict_telemetry["adxl375_safeeye"]["linear acceleration"]["y"], dict_telemetry["adxl375_safeeye"]["linear acceleration"]["z"]]
-                fields = field_header + field_time + field_vicon + field_int_imu + field_ext_imu + field_dji_imu + field_rc + field_adxl_safeeye
-                #print(field_ext_imu)
+                field_adxl_arm = [dict_telemetry["adxl375_arm"]["header"]["sequence"], dict_telemetry["adxl375_arm"]["linear acceleration"]["x"], dict_telemetry["adxl375_arm"]["linear acceleration"]["y"], dict_telemetry["adxl375_arm"]["linear acceleration"]["z"]]
+                fields = field_header + field_time + field_vicon + field_int_imu + field_ext_imu + field_dji_imu + field_rc + field_adxl_safeeye + field_adxl_arm
                 with open(file_name, 'a', newline='') as f:
                         writer = csv.writer(f) 
                         writer.writerow(fields)
@@ -149,6 +149,12 @@ def ADXL375_SafeEye_callback(msg):
         dict_telemetry["adxl375_safeeye"]["linear acceleration"]["y"] = msg.linear_acceleration.y
         dict_telemetry["adxl375_safeeye"]["linear acceleration"]["z"] = msg.linear_acceleration.z
         
+def ADXL375_SafeEye_callback(msg):
+        dict_telemetry["adxl375_arm"]["header"]["sequence"] = msg.header.seq
+        
+        dict_telemetry["adxl375_arm"]["linear acceleration"]["x"] = msg.linear_acceleration.x
+        dict_telemetry["adxl375_arm"]["linear acceleration"]["y"] = msg.linear_acceleration.y
+        dict_telemetry["adxl375_arm"]["linear acceleration"]["z"] = msg.linear_acceleration.z
         
 def namer():
         file_name = 0
@@ -177,6 +183,7 @@ if __name__ == '__main__':
         rospy.Subscriber("/Razor_IMUs/IMU1", Razorimu, int_imu_callback)
         rospy.Subscriber("/Razor_IMUs/IMU2", Razorimu, ext_imu_callback)
         rospy.Subscriber("/ADXL375/SafeEye", Imu, ADXL375_SafeEye_callback)
+        rospy.Subscriber("/ADXL375/Arm", Imu, ADXL375_Arm_callback)
         rate = rospy.Rate(50) # hz
 
         file_name = namer()

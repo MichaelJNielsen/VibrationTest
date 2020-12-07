@@ -138,6 +138,19 @@ telemetry = {
             "z": 0.0
             }
         }
+    "adxl375_arm":
+        {
+        "header":
+            {
+            "sequence": 0.0
+            },
+        "linear acceleration":
+            {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+            }
+        }
 }
 
 
