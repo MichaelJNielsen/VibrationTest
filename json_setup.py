@@ -30,7 +30,7 @@ telemetry = {
 	    "w": 0.0
 	    }
 	},
-    "internal imu": 
+    "safeeye imu": 
     	{
     	"header":
     	    {
@@ -55,7 +55,7 @@ telemetry = {
             "z": 0.0
             }
         },
-    "external imu": 
+    "accel1 imu": 
     	{
     	"header":
     	    {
@@ -125,7 +125,7 @@ telemetry = {
         "mode": 0.0,
         "landing_gear": 0.0
         },
-    "adxl375_safeeye":
+    "adxl375 accel1":
         {
         "header":
             {
@@ -138,7 +138,7 @@ telemetry = {
             "z": 0.0
             }
         },
-    "adxl375_arm":
+    "adxl375 accel2":
         {
         "header":
             {

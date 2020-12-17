@@ -25,20 +25,20 @@ def log():
                         
                 else:
                         field_header = ['','']
-                
+
                 current_clocktime = datetime.datetime.now().time()
                 dict_telemetry["test id"]["time"] = float(current_clocktime.strftime("%H%M%S.%f"))
                 dict_telemetry["test id"]["time_since_start"] = time.time()-start_time
                 
                 field_time = [dict_telemetry["test id"]["time"], dict_telemetry["test id"]["time_since_start"]]
                 field_vicon = [dict_telemetry["vicon"]["header"]["sequence"],float(str(dict_telemetry["vicon"]["header"]["seconds"]) + "." + str(dict_telemetry["vicon"]["header"]["nanoseconds"])),dict_telemetry["vicon"]["header"]["frame id"], dict_telemetry["vicon"]["child frame id"], dict_telemetry["vicon"]["translation"]["x"], dict_telemetry["vicon"]["translation"]["y"], dict_telemetry["vicon"]["translation"]["z"], dict_telemetry["vicon"]["rotation"]["x"], dict_telemetry["vicon"]["rotation"]["y"], dict_telemetry["vicon"]["rotation"]["z"], dict_telemetry["vicon"]["rotation"]["w"]]
-                field_int_imu = [dict_telemetry["internal imu"]["header"]["time stamp"],dict_telemetry["internal imu"]["accelerometer"]["x"],dict_telemetry["internal imu"]["accelerometer"]["y"],dict_telemetry["internal imu"]["accelerometer"]["z"],dict_telemetry["internal imu"]["gyrometer"]["x"],dict_telemetry["internal imu"]["gyrometer"]["y"],dict_telemetry["internal imu"]["gyrometer"]["z"],dict_telemetry["internal imu"]["magnetometer"]["x"],dict_telemetry["internal imu"]["magnetometer"]["y"],dict_telemetry["internal imu"]["magnetometer"]["z"]]
-                field_ext_imu = [dict_telemetry["external imu"]["header"]["time stamp"],dict_telemetry["external imu"]["accelerometer"]["x"],dict_telemetry["external imu"]["accelerometer"]["y"],dict_telemetry["external imu"]["accelerometer"]["z"],dict_telemetry["external imu"]["gyrometer"]["x"],dict_telemetry["external imu"]["gyrometer"]["y"],dict_telemetry["external imu"]["gyrometer"]["z"],dict_telemetry["external imu"]["magnetometer"]["x"],dict_telemetry["external imu"]["magnetometer"]["y"],dict_telemetry["external imu"]["magnetometer"]["z"]]
+                field_safeeye_imu = [dict_telemetry["safeeye imu"]["header"]["time stamp"],dict_telemetry["safeeye imu"]["accelerometer"]["x"],dict_telemetry["safeeye imu"]["accelerometer"]["y"],dict_telemetry["safeeye imu"]["accelerometer"]["z"],dict_telemetry["safeeye imu"]["gyrometer"]["x"],dict_telemetry["safeeye imu"]["gyrometer"]["y"],dict_telemetry["safeeye imu"]["gyrometer"]["z"],dict_telemetry["safeeye imu"]["magnetometer"]["x"],dict_telemetry["safeeye imu"]["magnetometer"]["y"],dict_telemetry["safeeye imu"]["magnetometer"]["z"]]
+                field_accel1_imu = [dict_telemetry["accel1 imu"]["header"]["time stamp"],dict_telemetry["accel1 imu"]["accelerometer"]["x"],dict_telemetry["accel1 imu"]["accelerometer"]["y"],dict_telemetry["accel1 imu"]["accelerometer"]["z"],dict_telemetry["accel1 imu"]["gyrometer"]["x"],dict_telemetry["accel1 imu"]["gyrometer"]["y"],dict_telemetry["accel1 imu"]["gyrometer"]["z"],dict_telemetry["accel1 imu"]["magnetometer"]["x"],dict_telemetry["accel1 imu"]["magnetometer"]["y"],dict_telemetry["accel1 imu"]["magnetometer"]["z"]]
+                field_adxl_accel1 = [dict_telemetry["adxl375 accel1"]["header"]["sequence"], dict_telemetry["adxl375 accel1"]["linear acceleration"]["x"], dict_telemetry["adxl375 accel1"]["linear acceleration"]["y"], dict_telemetry["adxl375 accel1"]["linear acceleration"]["z"]]
+                field_adxl_accel2 = [dict_telemetry["adxl375 accel2"]["header"]["sequence"], dict_telemetry["adxl375 accel2"]["linear acceleration"]["x"], dict_telemetry["adxl375 accel2"]["linear acceleration"]["y"], dict_telemetry["adxl375 accel2"]["linear acceleration"]["z"]]
                 field_dji_imu = [dict_telemetry["dji imu"]["header"]["sequence"], float(str(dict_telemetry["dji imu"]["header"]["seconds"]) + "." + str(dict_telemetry["dji imu"]["header"]["nanoseconds"])), dict_telemetry["dji imu"]["header"]["frame id"], dict_telemetry["dji imu"]["orientation"]["x"], dict_telemetry["dji imu"]["orientation"]["y"], dict_telemetry["dji imu"]["orientation"]["z"], dict_telemetry["dji imu"]["orientation"]["w"], dict_telemetry["dji imu"]["angular velocity"]["x"], dict_telemetry["dji imu"]["angular velocity"]["y"], dict_telemetry["dji imu"]["angular velocity"]["z"], dict_telemetry["dji imu"]["linear acceleration"]["x"], dict_telemetry["dji imu"]["linear acceleration"]["y"], dict_telemetry["dji imu"]["linear acceleration"]["z"]]
                 field_rc = [dict_telemetry["rc"]["header"]["sequence"], float(str(dict_telemetry["rc"]["header"]["seconds"]) + "." + str(dict_telemetry["rc"]["header"]["nanoseconds"])), dict_telemetry["rc"]["header"]["frame id"], dict_telemetry["rc"]["roll"], dict_telemetry["rc"]["pitch"], dict_telemetry["rc"]["yaw"], dict_telemetry["rc"]["throttle"], dict_telemetry["rc"]["mode"], dict_telemetry["rc"]["landing_gear"]]
-                field_adxl_safeeye = [dict_telemetry["adxl375_safeeye"]["header"]["sequence"], dict_telemetry["adxl375_safeeye"]["linear acceleration"]["x"], dict_telemetry["adxl375_safeeye"]["linear acceleration"]["y"], dict_telemetry["adxl375_safeeye"]["linear acceleration"]["z"]]
-                field_adxl_arm = [dict_telemetry["adxl375_arm"]["header"]["sequence"], dict_telemetry["adxl375_arm"]["linear acceleration"]["x"], dict_telemetry["adxl375_arm"]["linear acceleration"]["y"], dict_telemetry["adxl375_arm"]["linear acceleration"]["z"]]
-                fields = field_header + field_time + field_vicon + field_int_imu + field_ext_imu + field_dji_imu + field_rc + field_adxl_safeeye + field_adxl_arm
+                fields = field_header + field_time + field_vicon + field_safeeye_imu + field_accel1_imu + field_adxl_accel1 + field_adxl_accel2 + field_dji_imu + field_rc
                 with open(file_name, 'a', newline='') as f:
                         writer = csv.writer(f) 
                         writer.writerow(fields)
@@ -112,49 +112,49 @@ def vicon_callback(msg):
         dict_telemetry["vicon"]["rotation"]["z"] = msg.transform.rotation.z
         dict_telemetry["vicon"]["rotation"]["w"] = msg.transform.rotation.w
 
-def int_imu_callback(msg):
-        dict_telemetry["internal imu"]["header"]["time stamp"] = msg.time_stamp
+def SafeEye_imu_callback(msg):
+        dict_telemetry["safeeye imu"]["header"]["time stamp"] = msg.time_stamp
         
-        dict_telemetry["internal imu"]["accelerometer"]["x"] = msg.acc_x
-        dict_telemetry["internal imu"]["accelerometer"]["y"] = msg.acc_y
-        dict_telemetry["internal imu"]["accelerometer"]["z"] = msg.acc_z
+        dict_telemetry["safeeye imu"]["accelerometer"]["x"] = msg.acc_x
+        dict_telemetry["safeeye imu"]["accelerometer"]["y"] = msg.acc_y
+        dict_telemetry["safeeye imu"]["accelerometer"]["z"] = msg.acc_z
         
-        dict_telemetry["internal imu"]["gyrometer"]["x"] = msg.gyro_x
-        dict_telemetry["internal imu"]["gyrometer"]["y"] = msg.gyro_y
-        dict_telemetry["internal imu"]["gyrometer"]["z"] = msg.gyro_z
+        dict_telemetry["safeeye imu"]["gyrometer"]["x"] = msg.gyro_x
+        dict_telemetry["safeeye imu"]["gyrometer"]["y"] = msg.gyro_y
+        dict_telemetry["safeeye imu"]["gyrometer"]["z"] = msg.gyro_z
         
-        dict_telemetry["internal imu"]["magnetometer"]["x"] = msg.mag_x
-        dict_telemetry["internal imu"]["magnetometer"]["y"] = msg.mag_y
-        dict_telemetry["internal imu"]["magnetometer"]["z"] = msg.mag_z
+        dict_telemetry["safeeye imu"]["magnetometer"]["x"] = msg.mag_x
+        dict_telemetry["safeeye imu"]["magnetometer"]["y"] = msg.mag_y
+        dict_telemetry["safeeye imu"]["magnetometer"]["z"] = msg.mag_z
         
-def ext_imu_callback(msg):
-        dict_telemetry["external imu"]["header"]["time stamp"] = msg.time_stamp
+def Accel1_imu_callback(msg):
+        dict_telemetry["accel1 imu"]["header"]["time stamp"] = msg.time_stamp
         
-        dict_telemetry["external imu"]["accelerometer"]["x"] = msg.acc_x
-        dict_telemetry["external imu"]["accelerometer"]["y"] = msg.acc_y
-        dict_telemetry["external imu"]["accelerometer"]["z"] = msg.acc_z
+        dict_telemetry["accel1 imu"]["accelerometer"]["x"] = msg.acc_x
+        dict_telemetry["accel1 imu"]["accelerometer"]["y"] = msg.acc_y
+        dict_telemetry["accel1 imu"]["accelerometer"]["z"] = msg.acc_z
         
-        dict_telemetry["external imu"]["gyrometer"]["x"] = msg.gyro_x
-        dict_telemetry["external imu"]["gyrometer"]["y"] = msg.gyro_y
-        dict_telemetry["external imu"]["gyrometer"]["z"] = msg.gyro_z
+        dict_telemetry["accel1 imu"]["gyrometer"]["x"] = msg.gyro_x
+        dict_telemetry["accel1 imu"]["gyrometer"]["y"] = msg.gyro_y
+        dict_telemetry["accel1 imu"]["gyrometer"]["z"] = msg.gyro_z
         
-        dict_telemetry["external imu"]["magnetometer"]["x"] = msg.mag_x
-        dict_telemetry["external imu"]["magnetometer"]["y"] = msg.mag_y
-        dict_telemetry["external imu"]["magnetometer"]["z"] = msg.mag_z
+        dict_telemetry["accel1 imu"]["magnetometer"]["x"] = msg.mag_x
+        dict_telemetry["accel1 imu"]["magnetometer"]["y"] = msg.mag_y
+        dict_telemetry["accel1 imu"]["magnetometer"]["z"] = msg.mag_z
 
-def ADXL375_SafeEye_callback(msg):
-        dict_telemetry["adxl375_safeeye"]["header"]["sequence"] = msg.header.seq
+def ADXL375_Accel1_callback(msg):
+        dict_telemetry["adxl375 accel1"]["header"]["sequence"] = msg.header.seq
         
-        dict_telemetry["adxl375_safeeye"]["linear acceleration"]["x"] = msg.linear_acceleration.x
-        dict_telemetry["adxl375_safeeye"]["linear acceleration"]["y"] = msg.linear_acceleration.y
-        dict_telemetry["adxl375_safeeye"]["linear acceleration"]["z"] = msg.linear_acceleration.z
+        dict_telemetry["adxl375 accel1"]["linear acceleration"]["x"] = msg.linear_acceleration.x
+        dict_telemetry["adxl375 accel1"]["linear acceleration"]["y"] = msg.linear_acceleration.y
+        dict_telemetry["adxl375 accel1"]["linear acceleration"]["z"] = msg.linear_acceleration.z
         
-def ADXL375_Arm_callback(msg):
-        dict_telemetry["adxl375_arm"]["header"]["sequence"] = msg.header.seq
+def ADXL375_Accel2_callback(msg):
+        dict_telemetry["adxl375 accel2"]["header"]["sequence"] = msg.header.seq
         
-        dict_telemetry["adxl375_arm"]["linear acceleration"]["x"] = msg.linear_acceleration.x
-        dict_telemetry["adxl375_arm"]["linear acceleration"]["y"] = msg.linear_acceleration.y
-        dict_telemetry["adxl375_arm"]["linear acceleration"]["z"] = msg.linear_acceleration.z
+        dict_telemetry["adxl375 accel2"]["linear acceleration"]["x"] = msg.linear_acceleration.x
+        dict_telemetry["adxl375 accel2"]["linear acceleration"]["y"] = msg.linear_acceleration.y
+        dict_telemetry["adxl375 accel2"]["linear acceleration"]["z"] = msg.linear_acceleration.z
         
 def namer():
         file_name = 0
@@ -180,10 +180,10 @@ if __name__ == '__main__':
         rospy.Subscriber("/dji_sdk/imu", Imu, dji_imu_callback)
         rospy.Subscriber("/dji_sdk/rc", Joy, dji_joy_callback)
         rospy.Subscriber("/vicon/test_obj/test_obj", TransformStamped, vicon_callback)
-        rospy.Subscriber("/Razor_IMUs/IMU1", Razorimu, int_imu_callback)
-        rospy.Subscriber("/Razor_IMUs/IMU2", Razorimu, ext_imu_callback)
-        rospy.Subscriber("/ADXL375/SafeEye", Imu, ADXL375_SafeEye_callback)
-        rospy.Subscriber("/ADXL375/Arm", Imu, ADXL375_Arm_callback)
+        rospy.Subscriber("/Razor_IMU/SafeEye", Razorimu, SafeEye_imu_callback)
+        rospy.Subscriber("/Razor_IMU/Accel1", Razorimu, Accel1_imu_callback)
+        rospy.Subscriber("/ADXL375/Accel1", Imu, ADXL375_Accel1_callback)
+        rospy.Subscriber("/ADXL375/Accel2", Imu, ADXL375_Accel2_callback)
         rate = rospy.Rate(50) # hz
 
         file_name = namer()
