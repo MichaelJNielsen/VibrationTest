@@ -196,8 +196,8 @@ if __name__ == '__main__':
         while True:
                 beginTime = time.time()
                 log()
-                throttle_percent = ((dict_telemetry["rc"]["throttle"]+10000)/20000)*100
-                print(dict_telemetry["test id"]["time_since_start"], 'Throttle: ', throttle_percent)
+                throttle_percent = ((dict_telemetry["rc"]["throttle"]+1)/2)*100
+                print(dict_telemetry["test id"]["time_since_start"],'\n', 'Throttle: ', throttle_percent, '\n', 'Yaw: ', dict_telemetry["rc"]["yaw"])
                 rate.sleep()
                 
                 #timer_i = timer_i+1
